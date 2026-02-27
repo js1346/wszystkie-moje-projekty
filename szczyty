@@ -1,0 +1,77 @@
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std; 
+int n;
+int t[500005];
+int s[500005];
+vector<int> dziel;
+// 1 5 3 4 3 4 1 2 3 4 5 2
+
+int test(int k){
+    int hel=k-1;
+    if(t[hel]==0) return 0;
+    else { 
+        hel=hel+k;
+        while(hel<n){
+            if(t[hel]-t[hel-k]==0) return 0; 
+            hel=hel+k;
+        }
+        return n/k;
+    }
+}
+
+int main(){
+    cin>>n;
+    int licznikszczytow=0;
+    for(int i = 0; i < n; i++){
+        cin>>t[i];
+    }
+    
+    s[0]=0;
+    s[n-1]=0;
+    
+    for (int i=1; i<n-1;i++){
+        if((t[i]>t[i+1])&&(t[i]>t[i-1])){
+            s[i]=1;
+            licznikszczytow++;
+        }
+        else s[i]=0;
+    }
+    t[0]=s[0];//zamieniamy t[i] na sume prefiksowa ciagu s[i]
+    for (int i=1; i<n;i++) t[i]=t[i-1]+s[i];
+    
+    for(int i = 0; i < n; i++){
+        //cout << s[i] << " ";
+    }
+    //cout << "\n";
+    for(int i = 0; i < n; i++){
+        //cout << t[i] << " ";
+    }
+   // cout << "\n";
+    //cout << licznikszczytow << "\n";
+    
+    for (int i=1;i<=sqrt(n);i++){
+        //cout << i << "XD1\n";
+        if(n%i==0){
+            //cout << i << "XD3\n";
+            dziel.push_back(i);
+        }
+    }
+    
+    for(int i=dziel.size()-1;i>=0;i--){
+        if(dziel[i]!=sqrt(n)) dziel.push_back(n/dziel[i]);
+    }
+    
+    for(int i = 0; i < dziel.size(); i++){
+        //cout << dziel[i] << " ";
+    }
+    //cout << "\n";
+
+    int id=0, swid=0;
+    while(swid==0&&id<dziel.size()){
+        swid=test(dziel[id]);
+        id ++;
+    }
+    cout<<swid;
+    return 0;
+}

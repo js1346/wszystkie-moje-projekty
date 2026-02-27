@@ -1,0 +1,21 @@
+#include<bits/stdc++.h> 
+using namespace std;
+
+
+
+int main()
+{
+    int n; cin>>n; // z rysunku liczba tych powitań to fib(i-1)+fib(i-3)
+    //ponadto z tresci zadania wynik= (fib(i-1)mod10+fib(i-3)mod10)mod10
+    /*debug int fib[1000]; fib[0]=1;fib[1]=1;
+    for(int i=2; i<=1000;i++) {fib[i]=(fib[i-1]+fib[i-2])%10; }
+    for(int i=1; i<=60;i++) cout<<fib[i]<<" ";
+    cout<<endl;
+    for(int i=61; i<=120;i++) cout<<fib[i]<<" ";/*/ // z debuga wynika, że okres ostatniej liczby fibonaciego to 60
+    int fib[61]; 
+    fib[0]=1;fib[1]=1; 
+    for(int i=2; i<=60;i++) fib[i]=(fib[i-1]+fib[i-2])%10;
+    fib[0]=fib[60];
+    cout<<(fib[(n)%60]+fib[(n-2)%60])%10;
+    return 0;
+}

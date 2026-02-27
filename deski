@@ -1,0 +1,56 @@
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+
+//4 5  1 4 4 5 5 9 8 10  4 6 7 10 2 
+
+long long a[1000005];
+long long b[1000005];
+long long g[1000005];
+long long pref[1000005];
+long long n,m;
+long long bmax=0,amin=1000005;
+
+long long karma (int liczbagwozdzi)
+{   for(int i=0;i<bmax+1;i++) pref[i]=0;
+    for(int i=0;i<liczbagwozdzi;i++) pref[g[i]]++;
+    //cout<<pref[10];
+    for(int i=1;i<bmax+1;i++) pref[i]=pref[i]+pref[i-1];
+   // cout<<pref[8]<<" "<<pref[10]<<" \n";//for(int i=0;i<bmax;i++) cout<<pref[i]<<" ";
+    
+    for(int i=0;i<n;i++){
+       // cout<<pref[b[i]]<<" "<<pref[a[i]]<<"\n";
+        //cout<<pref[b[i]]-pref[a[i]-1]<<" ";
+        if(pref[b[i]]-pref[a[i]-1]==0) return -1;
+        
+    }
+    return liczbagwozdzi;
+}
+
+long long koror()
+{   int l=0, p=m,sr;
+    long long zwrotka=-1;
+
+    while(l<=p){
+        sr=(p+l)/2; //cout<<sr<<" ";
+        if(karma(sr)<0) l=sr+1;
+        else {zwrotka=sr; p=sr-1;}
+    }
+    return zwrotka;
+}
+
+int main()
+{
+   cin>>n;cin>>m;long long kapustka;
+   
+   for(int i=0;i<n;i++) {
+       cin>>a[i]>>b[i];
+       bmax=max(b[i],bmax);
+       amin=min(a[i],amin);
+   }
+   for(int i=0;i<m;i++) cin>>g[i];
+ 
+   cout<<koror();
+   //cout<<bmax<<" ";cout<<karma(3);
+    return 0;
+}

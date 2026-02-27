@@ -1,0 +1,26 @@
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+
+//8 4  1 2 3 4 8 1 1 3
+
+int sznurki[1000005];
+
+int main()
+{
+  int n,w,kasander=0,licznik=0;
+  cin>>n; cin>>w;
+  //cout<<n;cout<<w;
+  for(int i=0;i<n;i++) cin>>sznurki[i];
+   //for(int i=0;i<n;i++) cout<<sznurki[i];
+  for(int i=0;i<n;i++){
+      kasander=kasander+sznurki[i];
+     // cout<<kasander;
+      if(kasander>=w){
+        kasander=0;
+        licznik++;
+      }
+  }
+  cout<<licznik;
+  return 0;
+}

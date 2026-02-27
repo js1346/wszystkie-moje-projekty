@@ -1,0 +1,26 @@
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+int main()
+{
+ string a;cin>>a;
+ int g=0;int p=0;
+    for(int i=0;i<a.size();i++)
+    {
+        if(a[i]=='L') p--;
+        if(a[i]=='P') p++;
+        if(a[i]=='G') g++;
+        if(a[i]=='D') g--;
+    }
+if (g!=0)
+{ 
+  if (g>0) {for(int i=0;i<g;i++) cout<<"D";}
+  else {for(int i=0;i>g;i--) cout<<"G";}
+}
+if (p!=0)
+{ 
+  if (p>0) {for(int i=0;i<p;i++) cout<<"L";}
+  else {for(int i=0;i>p;i--) cout<<"P";}
+}
+    return 0;
+}

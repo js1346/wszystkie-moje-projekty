@@ -1,0 +1,44 @@
+#include <iostream>
+#include <math.h>
+#include <vector>
+#define pb push_back
+using namespace std;
+
+int a[5000000];
+
+string binarzymy (int n,int k){
+    string kor="";
+    for(int i=1;i<k;i++){
+        if(n%2==0) {
+            n=n/2;
+            kor.push_back(0);
+        }
+        else {
+            n=(n-1)/2;
+            kor.push_back(1);
+        }
+    }
+    return kor;
+}
+
+int main()
+{
+    string bin;
+    int n,k; cin>>n>>k;
+    int h=pow(2,k-1);
+    
+    if(n%h==0) n=h;
+    else n=n%h;
+    
+    bin=binarzymy(n-1,k);
+
+    int wynik=h-1;
+    
+    for(int i=0;i<bin.size();i++){
+        h=h/2;
+        if(bin[i]==0) wynik=wynik-h;
+    }
+    
+   cout<<wynik;
+    return 0;
+}

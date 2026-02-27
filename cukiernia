@@ -1,0 +1,18 @@
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+
+int main()
+    {int n; cin>>n;int mini=1000000001;long long  licznik=0;
+    vector<int>c(n);
+    for(int i=0;i<n;i++) {cin>>c[i]; } 
+
+    for(int i=n-1;i>=0;i--)
+    {
+        mini=min(mini,c[i]);
+        licznik=licznik+mini;
+    }
+   cout<<licznik;
+    
+    return 0;
+    }

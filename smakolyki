@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+// 5 3  1 3 2 2 3
+int c[300005];
+int d[300005];
+int main()
+{
+    int z=0,wynik=0;
+    int n, m;
+    cin>>n>>m;
+    for(int i=0;i<n;i++) cin>>c[i];
+    for(int j=0;j<m;j++) d[j]=0;
+    //for(int i=0;i<n;i++) cout
+    for(int i=0;i<n;i++)
+    {
+        while(z<n&&d[c[z]]==0){
+               d[c[z]]=1;
+               z++;
+          }
+          //cout<<i<<" "<<z-1<<"  ";
+        wynik+=z-i;
+        d[c[i]]=0;
+        //cout<<wynik<<endl;
+    }
+    
+    cout<<wynik;
+    return 0;
+}

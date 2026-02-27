@@ -1,0 +1,29 @@
+#include<bits/stdc++.h>
+
+#include <iostream>
+using namespace std;
+int main()
+{
+long long n; cin>>n; long long g=floor(sqrt(n));
+if(g==sqrt(n))
+{for(long long i=0;i<g;i++) cout<<"L";for(long long i=0;i<g;i++) cout<<"G";
+for(long long i=0;i<g;i++) cout<<"P";for(long long i=0;i<g;i++) cout<<"D";
+    
+}
+else{
+if((n-g*g)>g)
+{ for(long long i=0;i<g+2;i++) cout<<"L";
+for(long long i=0;i<(n-g*g-g);i++) cout<<"G";
+cout<<"P";
+  for(long long i=0;i<(g-(n-g*g-g));i++) cout<<"G";
+   for(long long i=0;i<g+1;i++) cout<<"P";for(long long i=0;i<g;i++) cout<<"D";
+}
+else
+{for(long long i=0;i<g+1;i++) cout<<"L";
+for(long long i=0;i<(n-g*g);i++) cout<<"G";
+  cout<<"P";
+  for(long long i=0;i<(g-(n-g*g));i++) cout<<"G";
+  for(long long i=0;i<g;i++) cout<<"P";for(long long i=0;i<g;i++) cout<<"D";
+}}
+    return 0;
+}

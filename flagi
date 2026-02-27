@@ -1,0 +1,48 @@
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{ //3 5 2 1 4 3 6 1 7 2
+//19 //7 9 1 2 3 2 3 2 2 3 2 3 2 3 2 2 2 3 2
+//45 // 2 3 2 2 3 2 2 3 2 3 2 3 2 3 2 2 3 2 2 2 2 2 2 3 2 3 2 2 3 2 2 2 3 2 2 3 2 2 2 3 2 3 2 2 2 
+    int n; cin>>n;
+    int t[1000005];int s[1000005];
+    //int licznikszczytow;
+    
+    for(int i = 0; i < n; i++){
+        cin>>t[i];
+    }
+    
+    s[0]=0;
+    s[n-1]=0;
+    
+    //cout<<s[0]<<" ";
+    for (int i=1; i<n-1;i++){
+        if((t[i]>t[i+1])&&(t[i]>t[i-1])){
+            s[i]=1;
+            //licznikszczytow++;
+        }
+        else s[i]=0;
+       // cout<<s[i]<<" ";
+    }
+    //cout<<s[10]; // for (int i=0;i<n;i++) cout<<s[i]<<" ";
+    
+    int kadm=1,id,liczek;
+    /*t[0]=s[0];//zamieniamy t[i] na sume prefiksowa ciagu s[i]
+    for (int i=1; i<n;i++) t[i]=t[i-1]+s[i];*/
+    
+    for (int k = 2; k < sqrt(n); k++){
+        id=1;liczek=0;
+        while( (id<n-1) && (liczek<k+1) ){
+            if(s[id]==1){
+                id=id+k; liczek=liczek+1;
+            }
+            else id=id+1;
+           // cout<<liczek<<" ";
+        }
+        if(liczek>=k) kadm=k;
+        //cout<<kadm<<" \n";
+    }
+   cout<<kadm;
+    return 0;
+}
+

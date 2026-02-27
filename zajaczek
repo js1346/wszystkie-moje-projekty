@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+#include <iostream>
+
+using namespace std;     //12//0 1 1 1 0 0 1 0 1 1 1 1 0 // 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+int m[300007];
+int fib[32]; 
+int jestem, it,id=1,lw;
+
+int main()
+{
+   int n; cin>>n;it=n;            //wczytanie tablicy z tresci zadania
+   for(int i=0; i<=n;i++) {
+       cin>>m[i]; 
+       if(m[i]==1) m[i]=-1;
+   } 
+    //for(int i=0; i<=n;i++) cout<<m[i];
+    
+   if(m[0]==-1||m[n]==-1) {cout<<-1; return 0;}
+   
+   fib[0]=0;  fib[1]=1;          //wczytanie potrzebnego ciagu fibonaciego
+   for(int i=2; i<=31;i++) fib[i]=fib[i-1]+fib[i-2];
+   
+   while(it>0){
+       if( (m[it]==0&&it==n) || (m[it]>0) ){
+           lw=1;
+           while(it-fib[lw]>=0){
+               if(m[it-fib[lw]]==0)
+               m[it-fib[lw]]=m[it]+1;
+               lw++;
+           }
+           it --;
+           id++;
+        }
+        else{
+            it--;
+        }
+      // for(int i=0; i<=n;i++) cout<<m[i]<<" ";
+        //cout<<"\n";
+   }
+   
+   if(m[0]>0) {cout<<m[0]; return 0;}
+   else {cout<<-1; return 0;}
+   
+}

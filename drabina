@@ -1,0 +1,27 @@
+#include<bits/stdc++.h> 
+using namespace std;
+
+int wyn[1000005];
+int fib[1000005];
+int help[31];
+
+int main()
+{
+    int z; cin>>z;
+    help[0]=1; for(int i=1;i<=30;i++) help[i]=2*help[i-1];
+    int s,p;
+    
+   fib[0]=1;
+   fib[1]=1;
+   for(int i=2;i<=1000003;i++) fib[i]=(fib[i-1]+fib[i-2])%help[30];
+   
+   for(int i=1;i<=z;i++)
+   {
+       cin>>s;cin>>p;
+       wyn[i]=fib[s]%help[p];
+   }
+    
+    for(int i=1;i<=z;i++) cout<<wyn[i]<<"\n";
+    
+    return 0;
+}

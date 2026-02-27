@@ -1,0 +1,43 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+int kolonel(int i)
+{int a; cin>>a;int x=0;int mnoznik;
+vector <int> zw(a);
+vector <int>kolczatka(2001,0);
+for (int f=0;f<a;f++)
+{
+ cin>>zw[f]; 
+ kolczatka[zw[f]+1000]++;
+}
+for (int f=0;f<=2000;f++)
+{for (int j=1;j<=kolczatka[f];j++)
+{
+zw[x]=f-1000;
+x++;
+}
+    
+}
+//for (int f=0;f<a;f++)
+//{
+//cout<<zw[f];
+//}
+mnoznik=zw[1]*zw[0]*zw[a-1];
+mnoznik=max(mnoznik,zw[a-1]*zw[a-2]*zw[a-3]);
+return mnoznik;  
+}
+
+
+int main()
+{   int z; cin>>z;
+    vector <int> iloczyny(z);
+    for(int i=0; i<z;i++)
+    {
+        iloczyny[i]=kolonel(i);
+    }
+    for(int i=0; i<z;i++)
+    {
+        cout<<iloczyny[i]<<endl;
+    }
+    return 0;
+}

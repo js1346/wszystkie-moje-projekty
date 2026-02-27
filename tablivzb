@@ -1,0 +1,32 @@
+#include <vector>
+#include <iostream>
+
+using namespace std;
+   
+int main()
+{//5// 1 2 3 3 6
+   int n;  int k=0;
+   cin>>n;
+   vector <int> a(n);
+
+   
+
+   for (int i=0; i<n; i++) cin>>a[i];//wczytywanie
+    //cout<<"\n"; for (int i=0; i<n; i++) cout<<a[i]<<" ";//wyczytywanie
+   for (int i=0; i<n; i++)  k=max(k,a[i]);//szukanie k max
+   //cout<<k; 
+    
+    vector <int> ile(k+1);
+   for (int i=0; i<n; i++) ile[a[i]]++;//tablica zliczeniowa
+    
+   vector <int> sito(k+1);
+  
+   for (int i=1;i<=k;i++){
+       if(ile[i]){//jesli ile[i] != 0
+           for(int j=i; j<=k; j+=i) sito[j]+=ile[i];
+       }
+   }
+
+   for(int i=0;i<n;i++) cout<<n-sito[a[i]]<<" ";
+    return 0;
+}

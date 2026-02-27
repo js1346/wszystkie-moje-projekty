@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+using namespace std;
+long long rozklad (long long x)
+{ long long sumaczynnikow=0;long long k=2;
+ while(x>1&&k<=sqrt(x))
+    {
+        while(x%k==0)
+        {
+            sumaczynnikow=sumaczynnikow+k;
+            x=x/k;
+        }
+        k++;
+    }
+    if (x==1) return sumaczynnikow;
+    else return sumaczynnikow+x;
+}
+long long nwd(long long a, long long b)
+    {long long pomoc;
+        while(b>0)
+            {
+                pomoc=a;
+                a=b;
+                b=pomoc%b;
+            }
+        return a;
+    
+    }
+int main()
+    { 
+        long long a,b; cin>>a;cin>>b;
+        if (a==b) cout<<0;
+        else 
+        {
+            //long long pomoc;
+             long long x,y;
+            //cout<<nwd(a,b)<<" "<<pomoc<<endl;
+           
+            x=b/nwd(a,b);y=a/nwd(a,b);
+            //cout<<x<<" "<<y<<endl;
+            //cout<<rozklad(x)<<"  ";
+            //cout<<rozklad(y);
+            cout<<rozklad(x)+rozklad(y);
+        }
+    return 0;
+    }

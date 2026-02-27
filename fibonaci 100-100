@@ -1,0 +1,88 @@
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+int main()
+    {
+        int n; cin>>n; int h; cin>>h;
+        int pom=0;int id=n;
+        int pom21=0,pom22=0;
+        vector<int>fibonaci(n+3);
+        vector<int>sumafib(n+3);
+        fibonaci[0]=0; fibonaci[1]=1;
+        sumafib[0]=fibonaci[0];
+        for(int i=2;i<=n;i++) fibonaci[i]=fibonaci[i-1]+fibonaci[i-2];
+        for(int i=1;i<=n;i++) sumafib[i]=sumafib[i-1]+fibonaci[i];
+        if(h==1)
+        {
+            cout<<sumafib[n]<<endl;
+            for(int i=1;i<=n;i++)
+            {
+                cout<<sumafib[i-1]<<" "<<0<<" "<<sumafib[i]<<" "<<1<<endl;
+            }
+        }
+        else{
+        if(h==2)
+        {   while (id>0) {pom=pom+fibonaci[id];id=id-3;}
+            cout<<pom<<endl;
+            for(int i=n;i>0;i--)
+            {
+                if(i % 3 ==n%3) 
+                {
+                    cout<<pom21<<" "<<0<<" ";
+                    pom21=pom21+fibonaci[i];
+                    cout<<pom21<<" "<<1<<endl;
+                }
+                else
+                {
+                    cout<<pom22<<" "<<1<<" ";
+                    pom22=pom22+fibonaci[i];
+                    cout<<pom22<<" "<<2<<endl;
+                }
+            }
+        }else{
+        if(h>2&&h<fibonaci[n])
+        {
+            cout<<fibonaci[n]<<endl;
+            cout<<0<<" "<<0<<" "<<fibonaci[n]<<" "<<1<<endl;
+            cout<<0<<" "<<1<<" "<<fibonaci[n-1]<<" "<<2<<endl;
+            cout<<fibonaci[n-1]<<" "<<1<<" "<<fibonaci[n-1]+fibonaci[n-2]<<" "<<2<<endl;
+            for(int i=1;i<=n-3;i++) cout<<sumafib[i-1]<<" "<<2<<" "<<sumafib[i]<<" "<<3<<endl;
+        }else{
+        if(h>=fibonaci[n]&&2*h<sumafib[n])
+        {id=3;
+            cout<<id<<endl;
+            cout<<0<<" "<<0<<" "<<1<<" "<<fibonaci[n]<<endl;
+            cout<<1<<" "<<0<<" "<<2<<" "<<fibonaci[n-1]<<endl;
+            cout<<1<<" "<<fibonaci[n-1]<<" "<<2<<" "<<fibonaci[n-1]+fibonaci[n-2]<<endl;
+            for(int i=1;i<=n-3;i++) cout<<2<<" "<<sumafib[i-1]<<" "<<3<<" "<<sumafib[i]<<endl;
+        }else{
+        if(h>=fibonaci[n]&&2*h>=sumafib[n]&&h<sumafib[n])
+        {
+            cout<<2<<endl;
+            for(int i=n;i>0;i--)
+            {
+                if(i % 3 ==n%3) 
+                {
+                    cout<<0<<" "<<pom21<<" ";
+                    pom21=pom21+fibonaci[i];
+                    cout<<1<<" "<<pom21<<" "<<endl;
+                }
+                else
+                {
+                    cout<<1<<" "<<pom22<<" ";
+                    pom22=pom22+fibonaci[i];
+                    cout<<2<<" "<<pom22<<endl;
+                }
+            }
+        }else{
+        if(h>=sumafib[n])
+        {
+            cout<<1<<endl;
+        for(int i=1;i<=n;i++)
+            {
+                cout<<0<<" "<<sumafib[i-1]<<" "<<1<<" "<<sumafib[i]<<endl;
+            }
+        }
+        }}}}}
+        return 0;
+    }

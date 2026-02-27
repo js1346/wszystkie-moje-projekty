@@ -1,0 +1,45 @@
+#include <iostream>
+#include <vector>
+#include<bits/stdc++.h>
+
+using namespace std;
+int main()
+{  
+    int ilg;cin>>ilg;int ilud;cin>>ilud;int j=0;int pom=0;int pommax=0;
+    if(ilud>=ilg) //jesli uderzen wiecej niz gwozdzi, wbic mozna kazdy gwozdz
+    {
+      cout<<ilg;
+    }
+     else
+    {
+    vector <int> pojgw( ilg);
+    for(int i=0;i<ilg;i++)
+    {
+      cin>>pojgw[i];
+    }
+    sort(pojgw.begin(),pojgw.end());//tworzymy, wczytujemy i sortujemy wektor
+   // for(int i=0;i<ilg;i++)
+      //  {
+        //    cout<<pojgw[i]<<"  "; 
+        //}
+     for (int i=0;i<(ilg-ilud-1);i++)
+         {
+              if (pojgw[i]==pojgw[i+1])
+              {
+               pom++;
+            }
+             else 
+                 {
+              pommax=max(pom,pommax);
+                 pom=0;
+                 }
+           // cout<<pom<<" ";
+            //cout<<pommax<<"   ";
+         }
+          pommax=max(pom,pommax);
+   // cout<<endl<<ilud<<"  ";
+    //cout<<pommax;
+    cout<<ilud+pommax+1;
+    } 
+    return 0;
+}

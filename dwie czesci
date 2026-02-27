@@ -1,0 +1,57 @@
+#include <bits/stdc++.h>
+#include <iostream>
+
+using namespace std;
+
+int main()
+    {   int n;cin>>n;int #include <bits/stdc++.h>
+#include <iostream>
+
+using namespace std;
+
+int main()
+    {   int n;cin>>n;int krotnosc=0,wartosc,lider,liczbaliderow=0,liczbaliderowlewa=0,ciecia=0;
+        vector <int> a(n);
+        for (int i=0;i<n;i++) cin>>a[i];
+        for(int i=0;i<n;i++)
+            { if(krotnosc==0)
+                {
+                    krotnosc=1;
+                    wartosc=a[i];
+                }
+              else
+                {
+                    if(wartosc==a[i]) krotnosc++;
+                    else krotnosc--;
+                }
+               // cout<<krotnosc<<endl;
+            }
+        if(krotnosc>0) 
+            {
+                for(int i=0;i<n;i++)
+                {
+                    if(a[i]==wartosc) liczbaliderow++;
+                }
+                if(liczbaliderow<=n/2) {cout<<0;return 0;}
+                else lider=wartosc;
+            }
+        else
+            {
+            cout<<0; 
+            return 0;
+            }
+        //cout<<lider<<"  "<<liczbaliderow<<endl;
+        //for(int i=0;i<n;i++) { if(a[i]==lider) liczbaliderow++;}
+        for(int i=0;i<n;i++)
+            { 
+                if(a[i]==lider)
+                {
+                  liczbaliderowlewa++; 
+                  liczbaliderow--;      
+                }  
+                if((liczbaliderowlewa>(i+1)/2)&&(liczbaliderow>(n-i-1)/2)) ciecia++;
+           
+            }
+            cout<<ciecia;
+            return 0;
+    }

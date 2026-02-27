@@ -1,0 +1,51 @@
+#include <iostream>
+#include <bits/stdc++.h>
+using namespace std;
+//void wstaw (int x){stos.push_b  ack(x);}
+//void zdejmij{stos.pop_back;}
+
+string kolonel(int g)
+    {   
+        string wejscie; cin>>wejscie;
+        int j=-1;
+       // vector <int> a(wejscie.size(),0);//zamieniamy znaki na cyfry
+       // for(int i=0; i<wejscie.size();i++)
+       // {
+          //  if(wejscie[i]=='{'){a[i]=3;}
+           // if(wejscie[i]=='['){a[i]=2;}
+          //  if(wejscie[i]=='('){a[i]=1;}
+           // if(wejscie[i]==')'){a[i]=-1;}
+          //  if(wejscie[i]==']'){a[i]=-2;}
+           // if(wejscie[i]=='}'){a[i]=-3;}
+       // }  // for(int i=0; i<wejscie.size();i++)  {cout<<a[i];}
+       vector <char> stos(0,0);
+           for(int i=0;i<wejscie.size();i++)
+           {cout<<stos.size();
+               stos.push_back(wejscie[i]);
+               j++;
+               if(j>=1){
+               if((stos[j]=='}'&&stos[j-1]=='{')||(stos[j]==']'&&stos[j-1]=='[')||(stos[j]==')'&&stos[j-1]=='('))
+               {
+                   stos.pop_back();stos.pop_back();
+                   j=j-2;
+               }}
+           }
+           if (stos.size()==0) return "TAK";
+           else return "NIE";
+    }
+
+
+int main()
+{   int z; cin>>z;
+    vector<string> y(z);
+    for(int g=0; g<z;g++)
+    {
+       y[g]=kolonel(g);
+    }
+     for(int g=0; g<z;g++)
+    {
+       cout<<y[g];
+    }
+ 
+    return 0;
+}

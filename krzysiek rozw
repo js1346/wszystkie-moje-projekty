@@ -1,0 +1,42 @@
+#include <bits/stdc++.h>
+#include <iostream>
+#define ff first
+#define ss second
+#define ll long long
+#define pll pair<ll,int>
+#define pb push_back
+using namespace std;
+
+// 6 4  3 -2 6 1 -1 5
+vector<pll> a;
+int main()
+{
+   
+    long long n, s;
+    cin>>n>>s;
+    
+    a.pb({0,0});
+    for(int i=1;i<=n;i++) {
+        int x;
+        cin >> x;
+        a.pb({a.back().ff+x,i});
+    }
+    
+    sort(a.begin(),a.end());
+    
+    int poc=0, wynik=0;
+    for(int kon=0;kon<a.size();kon++){
+       
+        while(poc<a.size()-1 && a[kon].ff-a[poc].ff > s)
+        {
+            poc++;
+        }
+        if(a[kon].ff-a[poc].ff==s)wynik=max(wynik,a[kon].ss-a[poc].ss);
+       
+    }
+    
+    
+    if (wynik!=0) cout<<wynik;
+    else cout<<"BRAK";
+    return 0;
+}

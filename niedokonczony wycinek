@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+
+// 6 4  3 -2 6 1 -1 5
+long long x[1000005];
+pair<long long,long long> a[1000005];
+int main()
+{
+   
+  long long n, s;
+    cin>>n>>s;
+    a[0].first=0; a[0].second=0;
+
+    for(int i=1;i<=n;i++) {
+        cin>>x[i]; 
+        a[i].first=x[i]+a[i-1].first;
+        a[i].second=i;
+        
+    }
+    
+    sort(a+1,a+n+1);
+    a[n+1].first=a[n].first; 
+    //for(int i=0; i<n+1;i++) cout<<a[i].first<<" "<<a[i].second<<"  /\n";
+   
+  /* cout<<endl;
+    for(int i=0; i<n;i++) cout<<pref[i]<<"  ";
+    cout<<endl;
+    cout<<pref[2];*/
+    
+    int poc=1;long long wynik=0;
+   for(int kon=1;kon<=n;kon++){
+       
+       if(a[poc].first-a[kon-1].first==s){wynik=max(wynik,abs(a[poc].second-a[kon-1].second));}
+       
+       while(poc<=n && a[poc].first-a[kon-1].first<=s)
+       {
+           if(a[poc].first-a[kon-1].first==s) {wynik=max(wynik,a[poc].second-a[kon-1].second);}
+       poc++;
+           
+       }
+   }
+    
+    
+    if (wynik!=0) cout<<wynik;
+    else cout<<"BRAK";
+    return 0;
+}

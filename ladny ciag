@@ -1,0 +1,37 @@
+#include <iostream>
+using namespace std;
+
+//  3 1 10  1 2 3
+//11//3 4 15 7 1 5 
+
+int main()
+{
+    int n,k,q;
+    cin>>n>>k>>q;
+    int d[1005];
+    int c[1005][1005];
+    
+    for(int i=0;i<n;i++) cin>>d[i]; 
+    
+    for(int i=0;i<1005;i++) {c[i][0]=0; c[0][i]=0;c[k+2][i]=0;}
+    
+    for(int i=1;i<=k+1;i++) c[1][i]=1;
+    
+    for(int i=2;i<=1004;i++){
+        for(int j=1;j<=k+1;j++){
+            c[i][j]=c[i-1][j-1]+c[i-1][j]+c[i-1][j+1];
+            c[i][j] %=q;
+        }
+    }
+        
+    for(int i=0; i<n;i++){
+       int wynik=0;
+        for(int j=1;j<=k+1;j++){
+            wynik=wynik+c[d[i]][j];
+            wynik %=q;
+        }   
+    cout<<wynik<<" ";
+    }
+    
+    return 0;
+}
