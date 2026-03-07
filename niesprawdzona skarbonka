@@ -1,0 +1,42 @@
+//SPDX-License-Identifier:MIT
+pragma solidity ^0.6.4;
+
+contract PiggyBank{
+
+    address public owner;
+    uint256 public bank;
+
+    constructor(address guy) public{
+        owner=guy;
+    }
+
+
+    function wievMyBankBallance() public view returns(uint256){
+        return owner.balance;
+    }
+
+    receive() external payable{
+        bank += msg.value;
+    }
+
+    function withdraw(uint256 amount,address odbiorca) public{
+        require(amount<=bank);
+        require(msg.sender == owner);
+        bank -=amount;
+        (bool success,)=payable(odbiorca).call{value:amount}("");
+        require(success,"Transfer failed");
+        
+    }
+}
+
+contract PiggyBankFactory{
+    
+    mapping(address=>address) public myBank;
+    
+    function createBank(address me) public{
+        require(myBank[me]==address(0));
+        PiggyBank newBank=new PiggyBank(me);
+        myBank[me]=address(newBank);
+   }
+
+}
