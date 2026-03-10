@@ -1,0 +1,171 @@
+// Lab3.java
+public class Lab3 {
+
+    public static void main(String args[]) {
+        System.out.println(nwd(9 + 23, 16));
+        System.out.println(fib(16));
+        System.out.println(binom(13, 2));
+        factorization(2025);
+        System.out.println(" ");
+        System.out.println(power(2, 16));
+        writeTable(computeSieve(50));
+        int[] tab={1,11,12,13,14,20,21,22,25,26};
+        int[] tab2={2,11,13,20,22,23,24,26};
+        writeTable(intersection(tab,tab2));
+
+    }
+
+    static int gcd(int a, int b) {
+        if (b == 0) return a;
+        if (a == 0) return b;
+        if (a == b) return a;
+        else if (b > a) return gcd(b % a, a);
+        else return gcd(a % b, b);
+    }
+
+
+    // liczy największy wspólny dzielnik argumentów
+    public static int nwd(int a, int b) {
+        return gcd(a, b);
+    }
+
+    // liczy i-tą liczbę Fibonacciego
+    public static long fib(int i) {
+        int[] tab = new int[i + 1];
+        tab[0] = 0;
+        tab[1] = 1;
+        for (int j = 2; j <= i; j++) {
+            tab[j] = tab[j - 1] + tab[j - 2];
+        }
+        return tab[i];
+    }
+
+    public static long binom(int n, int k) {
+        //n-k+1...n/k
+        long toret = 1;
+        for (int i = k + 1; i <= n; i++) {
+            toret *= i;
+            //System.out.println(toret);
+        }
+        for (int i = 1; i <= n - k; i++) {
+            toret /= i;
+            // System.out.println(toret);
+        }
+        return toret;
+    }
+
+    static int factor(int n) {
+        for (int i = 2; i * i <= n; i++) {
+            if (n % i == 0) return i;
+        }
+        return -1;
+    }
+
+    // wypisuje na standardowe wyjście rozkład na czynniki pierwsze argumentu
+    public static void factorization(int n) {
+        if (n < 0) System.out.print(-1 + " ");
+        if (n == 0) System.out.print(0 + " ");
+        int help = 0;
+        while (n != 1) {
+            help = factor(n);
+            if (help == -1) {
+                System.out.print(n + " ");
+                n = 1;
+            } else {
+                System.out.print(help + " ");
+                n /= help;
+            }
+        }
+    }
+
+    static long pow(int n, int t) {
+        long toret = 1;
+        if (t == 0) return 1;
+        else if (t % 2 == 0) {
+            t >>= 1;
+            long help = pow(n, t);
+            toret = toret * help * help;
+        } else if (toret % 2 == 1) {
+            t -= 1;
+            toret *= n;
+        }
+        return toret;
+    }
+
+    // liczy n^t w czasie O(log t) (tzw. "szybkie potęgowanie")
+    public static long power(int n, int t) {
+        return pow(n, t);
+    }
+
+
+    public static void writeTable(int[] tab){
+        for(int i=0;i<tab.length;i++) {
+            System.out.print(tab[i] + " ");
+        }
+        System.out.println(" ");
+    }
+    public static int[] computeSieve(int n) {
+        int[] tab = new int[n + 1];
+        tab[0] = 0;
+        tab[1] = 1;
+        for (int i = 2; i <= n; i++) {
+            if (tab[i] == 0) {
+                tab[i] = i;
+                for (int j = 2 * i; j<= n; j+=i) if(tab[j]==0) tab[j]=i;
+            }
+        }
+        return tab;
+    }
+    static int max(int a,int b){
+        if(a>=b) return a;
+        else return b;
+    }
+
+    // liczy część wspólną tablic wejściowych A i B
+    // zakładamy że tablice A,B są posortowane rosnąco i nie zawierają powtórzeń
+    public static int[] intersection(int[] A, int[] B) {
+        int help=max(A.length,B.length);
+        int[] tab=new int[help];
+        int a=0,b=0,counter=0;
+        while(a<A.length||b<B.length){
+            if(A[a]<B[b])a++;
+            else if(A[a]>B[b])b++;
+            else if(A[a]==B[b]){
+                tab[counter]=A[a];
+                a++;
+                b++;
+                counter++;
+            }
+        }
+        return tab;
+    }
+}
+    // liczy współczynniki sumy wielomianów reprezentowanych przez tablice wejściowe A i B
+    // A[i] to współczynnik przy x^i w pierwszym wielomianie, analogicznie tablica B reprezentuje drugi wielomian
+    // nie marnujemy pamięci, czyli zwrócona tablica ma mieć długość równy stopniu wielomianu + 1
+    // UWAGA: A i B nie muszą być takie oszczędne, mogą zdarzyć się zera wiodące
+   /* public static int[] sumPolynomials(int[] A, int[] B) {
+        // TODO
+    }
+
+    // sortuje podtablicę t[l..r] rekurencyjnie algorytmem MergeSort w O((r-l) log (r-l))
+    // UWAGA: Funkcja nic nie zwraca, bo ma modyfikować podaną tablicę t[]. Wszystko w Javie jest przekazywane przez referencję,
+    // więc efekt działania funkcji będzie widoczny na zewnątrz po jej wykonaniu
+    public static void mergeSort(int[] t, int l, int r) {
+        // TODO
+    }
+
+    // to jest zadanie o grafie: wejście składa się z liczby wierzchołków n oraz tablicy M o wymiarach n x n,
+    // gdzie M[i][j] == true wtedy i tylko wtedy gdy istnieje krawędź z wierzchołka i do wierzchołka j
+    // UWAGA: Graf jest skierowany, więc może zdarzyć się że M[i][j] == true, ale M[j][i] == false
+    // funkcja ma zwrócić wartość true wtedy i tylko wtedy, gdy graf na wejściu jest acykliczny - czyli nie zawiera cyklu.
+    // HINT: Istnieje proste rozwiązanie o złożoności czasowej O(n^3)
+    public static boolean isAcyclic(int n, boolean[][] M) {
+        // TODO
+    }
+
+    // liczy długość LCS (Longest Common Subsequence, Najdłuższy wspólny podciąg) słów na wejściu, w czasie O(|u|*|v|)
+    public static int lcs(String u, String v) {
+        // TODO
+    }
+}/*/
