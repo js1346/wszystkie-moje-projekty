@@ -82,6 +82,13 @@ public class Calculator {
         else return b;
     }
 
+    static String reverse(String z){
+        String dozret=new String();
+        for(int i=z.length()-1;i>=0;i--){
+            dozret=dozret.concat(String.valueOf(z.charAt(i)));
+        }
+        return dozret;
+    }
     //we assume x,y>=0
     static String _add(String x, String y){
         String z = x;
@@ -113,17 +120,33 @@ public class Calculator {
             help/=10;
         }
 
-        String dozret=new String();
-        for(int i=z.length()-1;i>=0;i--){
-            dozret=dozret.concat(String.valueOf(z.charAt(i)));
-        }
-        return dozret;
+
+        return reverse(z);
 
     }
 
     //we assume x,y>=0 and x>=y
     static String _subtract(String x, String y){
-        return "kurcze bele kocham pis ponad wszystok";
+        String dozret=new String();
+        int borrowed=0;
+        int head;
+        int yct=y.length()-1;
+
+        for(int i=x.length()-1;i>=0;i--){
+            if(yct>=0) head=(int)(x.charAt(i)-'0')-(int)(y.charAt(yct)-'0')-borrowed;
+            else head=(int)(x.charAt(i)-'0')-borrowed;
+
+            if(head<0){
+                head+=10;
+                borrowed=1;
+            }
+            else borrowed=0;
+
+            dozret=dozret.concat(String.valueOf(head));
+            yct--;
+        }
+
+        return reverse(dozret);
     }
 
 
@@ -172,10 +195,10 @@ public class Calculator {
         int help=makeCode(x,y);
         if (help == 1) return _add(x,y);
         if (help == 2) return z.concat(_add(x.substring(1),y.substring(1)));
-        if (help == 3) return _subtract(x,y);
-        if (help == 4) return z.concat(_subtract(x,y));
-        if (help == 5) return _subtract(y,x);
-        if (help == 6) return z.concat(_subtract(y,x));
+        if (help == 3) return _subtract(x,y.substring(1));
+        if (help == 4) return z.concat(_subtract(x.substring(1),y));
+        if (help == 5) return z.concat( _subtract(y.substring(1),x));
+        if (help == 6) return _subtract(y,x.substring(1));
         return " ";
     }
 
@@ -193,6 +216,26 @@ public class Calculator {
     }
 
     static String multiply(String x, String y) {
-        return "kabanos tarczynski jak dominik";
+        String[] dict=new String[10];
+        dict[0]="0";
+        dict[1]=x;
+        for(int i=2;i<=9;i++){
+            dict[i]=add(x,dict[i-1]);
+        }
+
+        String dozret="0";
+        String help=new String();
+
+
+        for(int i=y.length()-1;i>=0;i--){
+            String zeroes=new String();
+            for(int j=y.length()-1-i;j>0;j--) zeroes=zeroes.concat(String.valueOf(0));
+
+            help=dict[(int)(y.charAt(i)-'0')].concat(zeroes);
+            dozret=add(dozret,help);
+        }
+
+
+        return dozret;
     }
 }
