@@ -83,12 +83,15 @@ public class Calculator {
     }
 
     static String reverse(String z){
-        String dozret=new String();
-        for(int i=z.length()-1;i>=0;i--){
-            dozret=dozret.concat(String.valueOf(z.charAt(i)));
+        String dozret = new String();
+
+        for(int i=z.length()-1; i >= 0; i--){
+            dozret = dozret.concat(String.valueOf(z.charAt(i)));
         }
+
         return dozret;
     }
+
     //we assume x,y>=0
     static String _add(String x, String y){
         String z = x;
@@ -97,65 +100,71 @@ public class Calculator {
             x = y;
             y = z;
         }
-        z=new String();
+        z = new String();
 
-        int xct=x.length()-1;
-        int yct=y.length()-1;
-        int help=0;
+        int xct = x.length()-1;
+        int yct = y.length()-1;
+        int help = 0;
 
         while(yct >= 0){
-            help+=(int)y.charAt(yct)+(int)x.charAt(xct)-2*'0';
-            z=z.concat(String.valueOf((char)(help%10+48)));
-            help/=10;
-            xct--;yct--;
+            help += (int)y.charAt(yct) + (int)x.charAt(xct) - 2 * '0';
+            z = z.concat(String.valueOf((char)(help%10+48)));
+            help /=10;
+            xct--;
+            yct--;
         }
-        while(xct>=0){
-            help+=(int)x.charAt(xct)-'0';
-            z=z.concat(String.valueOf((char)(help%10+48)));
-            help/=10;
+        while(xct >= 0){
+            help += (int)x.charAt(xct) - '0';
+            z = z.concat(String.valueOf((char)(help%10+48)));
+            help /= 10;
             xct--;
         }
-        while(help>0){
-            z=z.concat(String.valueOf((char)(help%10+48)));
-            help/=10;
+        while(help > 0){
+            z = z.concat(String.valueOf((char)(help%10+48)));
+            help /= 10;
         }
 
-
         return reverse(z);
-
     }
 
     //we assume x,y>=0 and x>=y
     static String _subtract(String x, String y){
-        String dozret=new String();
-        int borrowed=0;
+        String dozret = new String();
+        int borrowed = 0;
         int head;
-        int yct=y.length()-1;
+        int yct = y.length()-1;
 
-        for(int i=x.length()-1;i>=0;i--){
-            if(yct>=0) head=(int)(x.charAt(i)-'0')-(int)(y.charAt(yct)-'0')-borrowed;
-            else head=(int)(x.charAt(i)-'0')-borrowed;
+        for(int i = x.length()-1; i >= 0; i--){
+            if(yct >= 0) head = (int)(x.charAt(i)-'0') - (int)(y.charAt(yct)-'0') - borrowed;
+            else head = (int)(x.charAt(i)-'0') - borrowed;
 
-            if(head<0){
-                head+=10;
-                borrowed=1;
+            if(head < 0){
+                head += 10;
+                borrowed = 1;
             }
-            else borrowed=0;
+            else borrowed = 0;
 
-            dozret=dozret.concat(String.valueOf(head));
+            dozret = dozret.concat(String.valueOf(head));
             yct--;
         }
+
+        int nct=dozret.length()-1;
+        while(nct > 0 && dozret.charAt(nct) == '0') nct--;
+
+        dozret=dozret.substring(0,nct+1);
 
         return reverse(dozret);
     }
 
 
     static boolean isAbsBigger(String x, String y){
-        if(x.length()>y.length()) return true;
-        if(x.length()<y.length()) return false;
-        for(int i=0;i<x.length();i++){
-            if((int)x.charAt(i)>(int)y.charAt(i)) return true;
-            if((int)x.charAt(i)<(int)y.charAt(i)) return false;
+        if(x.charAt(0) == '-') x = x.substring(1);
+        if(y.charAt(0) == '-') y = y.substring(1);
+        if(x.length() > y.length()) return true;
+        if(x.length() < y.length()) return false;
+        for(int i = 0; i < x.length(); i++){
+            if((int)x.charAt(i) > (int)y.charAt(i)) return true; //we don't need to add -'0' to both sides
+            if((int)x.charAt(i) < (int)y.charAt(i)) return false;
         }
         return true;
     }
@@ -180,19 +189,19 @@ public class Calculator {
         if(x.charAt(0) != '-' && y.charAt(0) != '-' ) return 1;
         if(x.charAt(0) == '-' && y.charAt(0) == '-' ) return 2;
 
-        if (isAbsBigger(x,y)==true){
-            if (isBigger(x,y)==true) return 3;
+        if (isAbsBigger(x,y) == true){
+            if (isBigger(x,y) == true) return 3;
             else return 4;
         }
         else{
-            if (isBigger(x,y)==true) return 5;
+            if (isBigger(x,y) == true) return 5;
             else return 6;
         }
     }
 
     static String add(String x, String y) {
-        String z="-";
-        int help=makeCode(x,y);
+        String z = "-";
+        int help = makeCode(x,y);
         if (help == 1) return _add(x,y);
         if (help == 2) return z.concat(_add(x.substring(1),y.substring(1)));
         if (help == 3) return _subtract(x,y.substring(1));
@@ -205,37 +214,43 @@ public class Calculator {
     static String subtract(String x, String y) {
 
         if(y.charAt(0) == '-') {
-            y=y.substring(1);
+            y = y.substring(1);
             return add(x,y);
         }
         else {
-            String z="-";
-            z=z.concat(y);
+            String z = "-";
+            z = z.concat(y);
             return add(x, z);
         }
     }
 
     static String multiply(String x, String y) {
+        String isMinus=new String();
+        if(x.charAt(0) == '-' ^ y.charAt(0) == '-') isMinus=isMinus.concat("-");
+
+        if(x.charAt(0) == '-') x = x.substring(1);
+        if(y.charAt(0) == '-') y = y.substring(1);
+
         String[] dict=new String[10];
-        dict[0]="0";
-        dict[1]=x;
-        for(int i=2;i<=9;i++){
-            dict[i]=add(x,dict[i-1]);
+        dict[0] = "0";
+        dict[1] = x;
+        for(int i = 2; i <= 9; i++){
+            dict[i] = add(x,dict[i-1]);
         }
 
-        String dozret="0";
-        String help=new String();
+        String dozret = "0";
+        String help = new String();
 
 
-        for(int i=y.length()-1;i>=0;i--){
-            String zeroes=new String();
-            for(int j=y.length()-1-i;j>0;j--) zeroes=zeroes.concat(String.valueOf(0));
+        for(int i = y.length()-1; i >= 0; i--){
+            String zeroes = new String();
+            for(int j = y.length()-1-i; j > 0; j--) zeroes = zeroes.concat(String.valueOf(0));
 
-            help=dict[(int)(y.charAt(i)-'0')].concat(zeroes);
-            dozret=add(dozret,help);
+            help = dict[(int)(y.charAt(i)-'0')].concat(zeroes);
+            dozret = add(dozret,help);
         }
 
 
-        return dozret;
+        return isMinus.concat(dozret);
     }
 }
