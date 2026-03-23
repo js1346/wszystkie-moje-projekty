@@ -77,6 +77,26 @@ public class Calculator {
         }
     }
 
+    static String checkWellLooking(String s){
+        int ct=0;
+        String minus="-";
+        if (s.charAt(0) == '-'){
+            ct=1;
+            while(s.charAt(ct) == '0') {
+                if (ct == s.length() - 1) return "0";
+                ct++;
+            }
+            return minus.concat(s.substring(ct));
+        }
+        else{
+            while(s.charAt(ct) == '0') {
+                if (ct == s.length() - 1) return "0";
+                ct++;
+            }
+            return s.substring(ct);
+        }
+    }
+
     static int max(int a,int b) {
         if (a > b) return a;
         else return b;
@@ -148,11 +168,6 @@ public class Calculator {
             yct--;
         }
 
-        int nct=dozret.length()-1;
-        while(nct > 0 && dozret.charAt(nct) == '0') nct--;
-
-        dozret=dozret.substring(0,nct+1);
-
         return reverse(dozret);
     }
 
@@ -186,15 +201,15 @@ public class Calculator {
     6)abs(y)>abx(x) and y-x<0*/
 
     static int makeCode(String x, String y){
-        if(x.charAt(0) != '-' && y.charAt(0) != '-' ) return 1;
-        if(x.charAt(0) == '-' && y.charAt(0) == '-' ) return 2;
+        if(x.charAt(0) != '-' && y.charAt(0) != '-' )  return 1;
+        if(x.charAt(0) == '-' && y.charAt(0) == '-' )  return 2;
 
         if (isAbsBigger(x,y) == true){
             if (isBigger(x,y) == true) return 3;
             else return 4;
         }
         else{
-            if (isBigger(x,y) == true) return 5;
+            if (isBigger(x,y) == true)  return 5;
             else return 6;
         }
     }
@@ -202,13 +217,13 @@ public class Calculator {
     static String add(String x, String y) {
         String z = "-";
         int help = makeCode(x,y);
-        if (help == 1) return _add(x,y);
-        if (help == 2) return z.concat(_add(x.substring(1),y.substring(1)));
-        if (help == 3) return _subtract(x,y.substring(1));
-        if (help == 4) return z.concat(_subtract(x.substring(1),y));
-        if (help == 5) return z.concat( _subtract(y.substring(1),x));
-        if (help == 6) return _subtract(y,x.substring(1));
-        return " ";
+        if (help == 1)  z = _add(x,y);
+        if (help == 2)  z = z.concat(_add(x.substring(1),y.substring(1)));
+        if (help == 3)  z = _subtract(x,y.substring(1));
+        if (help == 4)  z = z.concat(_subtract(x.substring(1),y));
+        if (help == 5)  z = z.concat( _subtract(y.substring(1),x));
+        if (help == 6)  z = _subtract(y,x.substring(1));
+        return checkWellLooking(z);
     }
 
     static String subtract(String x, String y) {
@@ -250,7 +265,5 @@ public class Calculator {
             dozret = add(dozret,help);
         }
 
-
-        return isMinus.concat(dozret);
+        return checkWellLooking(isMinus.concat(dozret));
     }
-}
