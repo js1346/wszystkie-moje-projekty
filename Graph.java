@@ -1,3 +1,4 @@
+package ex4;
 public class Graph {
     int size;
     int taken;
@@ -68,3 +69,4 @@ public class Graph {
         return dozret;
     }
 }
+
