@@ -1,12 +1,14 @@
 import java.lang.String ;
 
 public class Moment {
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minute;
-    int second;
+    private int year;
+    private int month;
+    private int day;
+    private int hour;
+    private int minute;
+    private int second;
+    private static int nieprzestepne[]={31,28,31,30,31,30,31,31,30,31,30,31};
+    private static int przestepne[]   ={31,29,31,30,31,30,31,31,30,31,30,31};
 
     public Moment(int year, int month, int day, int hour, int minute,int second) {
         this.year = year;
@@ -63,8 +65,118 @@ public class Moment {
     public String get(){
         return(year + "-" + month + "-" + day + "-" + hour + ":" + minute + ":"+second);
     }
+    public boolean isPrzestepny(){
+        if(this.year % 4 != 0) return false;
+        if(this.year % 100 != 0) return true;
+        if(this.year % 400 != 0) return false;
+        return true;
+    }
 
-    private int _isLater(Moment a){
+    private long getNumberOfDaysInMonth(int a){
+        long dayCount=0;
+        int i=0;
+        if(isPrzestepny()){
+            while(a > 0){
+                dayCount+=przestepne[i];
+                a--;
+                i++;
+            }
+        }
+        else {
+            while(a > 0){
+                dayCount+=przestepne[i];
+                a--;
+                i++;
+            }
+        }
+        return dayCount;
+    }
+
+    public long momentToSecondNumber(){
+        int year=this.year-1;
+        long toReturn=0;
+        toReturn+=year/400*numberOfSecondsIn400Years;
+        year%=400;
+        toReturn+=year/100*numberOfSecondsIn100Years;
+        year%=100;
+        toReturn+=year/4*numberOfSecondsIn4Years;
+        year%=4;
+        toReturn+=year*numberOfSecondsIn1Year;
+        toReturn+=((getNumberOfDaysInMonth(this.month)+this.day)*86400);
+        toReturn+=(this.hour*3600+this.minute*60+this.second);//automatic conversion to long
+        return toReturn;
+    }
+    private class Duplex{
+        int first;
+        long second;
+        public Duplex(int first,long second){
+            this.first=first;
+            this.second=second;
+        }
+        
+    }
+    private Duplex secondToMonth(long secondCount,Moment moment){
+        Duplex duplex=new Duplex(1,0);
+        int i=0;
+        while(secondCount > 0){
+            if(moment.isPrzestepny()){
+                secondCount-=przestepne[i]*86400;
+                if(secondCount<0){
+                    secondCount+=przestepne[i]*86400;
+                    duplex.second=secondCount;
+                    return duplex;
+                }
+                else{
+                    duplex.first++;
+                    i++;
+                }
+            }
+            else if(!moment.isPrzestepny()){
+                secondCount-=nieprzestepne[i]*86400;
+                if(secondCount<0){
+                    secondCount+=nieprzestepne[i]*86400;
+                    duplex.second=secondCount;
+                    return duplex;
+                }
+                else{
+                    duplex.first++;
+                    i++;
+                }
+            }
+        }
+        return duplex;
+    }
+    
+    public Moment secondToMoment(long secondCount){
+        Moment toReturn=new Moment(0,0,0,0,0,0);
+        toReturn.year +=(int) 400*(secondCount/numberOfSecondsIn400Years);
+        secondCount %= numberOfSecondsIn400Years;
+        toReturn.year +=(int) 100*(secondCount/numberOfSecondsIn100Years);
+        secondCount %=numberOfSecondsIn100Years;
+        toReturn.year +=(int) 4*(secondCount/numberOfSecondsIn4Years);
+        secondCount %= numberOfSecondsIn4Years;
+        toReturn.year += (int)secondCount/numberOfSecondsIn1Year;
+        secondCount %= numberOfSecondsIn1Year;
+        
+        if(secondCount == 0){
+            return new Moment(toReturn.getYear(),12,31,23,59,59);
+        }
+        
+        toReturn.year += 1;
+        Duplex duplex=secondToMonth(secondCount,toReturn);
+        toReturn.month=duplex.first;
+        secondCount=duplex.second;
+        
+        toReturn.day +=(int) secondCount/86400;
+        secondCount %=86400;
+        toReturn.hour +=(int) secondCount/3600;
+        secondCount %= 3600;
+        toReturn.minute += (int)secondCount/60;
+        secondCount %= 60;
+        toReturn.second=(int)secondCount
+        return toReturn;
+    }
+    /*private int _isLater(Moment a){
         if(this.year>a.getYear()) return 2;
         if(this.year<a.getYear()) return 0;
 
@@ -93,12 +205,7 @@ public class Moment {
         if(b == 1) System.out.println("oba momenty sa identyczne");
     }
 
-    public boolean isPrzestepny(){
-        if(this.year % 4 != 0) return false;
-        if(this.year % 100 != 0) return true;
-        if(this.year % 400 != 0) return false;
-        return true;
-    }
+
     private long _subtract(Moment a, Moment b){
         long toReturn=0;
         long += (long)((a.getYear()-b.getYear())*);
@@ -109,7 +216,7 @@ public class Moment {
         if(this._isLater(a) == 1) return 0;
         if(this._isLater(a) == 2) return _subtract(this,a);
         if(this._isLater(a) == 0) return _subtract(a,this);
-    }
+    }*/
     public static void main(String[] args) {
 
 
