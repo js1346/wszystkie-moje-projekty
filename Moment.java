@@ -7,8 +7,16 @@ public class Moment {
     private int hour;
     private int minute;
     private int second;
+
     private static int nieprzestepne[]={31,28,31,30,31,30,31,31,30,31,30,31};
     private static int przestepne[]   ={31,29,31,30,31,30,31,31,30,31,30,31};
+    private static long numberOfSecondsIn400Years=12622780800L;
+    private static long numberOfSecondsIn100Years=3155673600L;
+    private static long numberOfSecondsIn4Years=126230400L;
+    private static long numberOfSecondsIn1Year=31536000L;
+
+
+    private Moment(){}//sets empty spaces, for private purpose
 
     public Moment(int year, int month, int day, int hour, int minute,int second) {
         this.year = year;
@@ -23,9 +31,13 @@ public class Moment {
                 if (day > 0 && day < 31) this.day = day;
                 else throw new IllegalArgumentException("Ten miesiac nie moze miec wiecej niz 30 dni");
             }
+            else if(this.isPrzestepny()){
+                if (day > 0 && day <= 29) this.day = day;
+                else throw new IllegalArgumentException("Ten miesiac nie moze miec wiecej niz 29 dni");
+            }
             else{
-            if (day > 0 && day < 29) this.day = day;
-            else throw new IllegalArgumentException("Ten miesiac nie moze miec wiecej niz 28 dni");
+                if (day > 0 && day <= 28) this.day = day;
+                else throw new IllegalArgumentException("Ten miesiac nie moze miec wiecej niz 28 dni");
             }
         }
 
@@ -59,7 +71,7 @@ public class Moment {
         return minute;
     }
     public int getSecond() {
-        return month;
+        return second;
     }
 
     public String get(){
@@ -76,15 +88,15 @@ public class Moment {
         long dayCount=0;
         int i=0;
         if(isPrzestepny()){
-            while(a > 0){
+            while(a > 1){
                 dayCount+=przestepne[i];
                 a--;
                 i++;
             }
         }
         else {
-            while(a > 0){
-                dayCount+=przestepne[i];
+            while(a > 1){
+                dayCount+=nieprzestepne[i];
                 a--;
                 i++;
             }
@@ -92,7 +104,7 @@ public class Moment {
         return dayCount;
     }
 
-    public long momentToSecondNumber(){
+    private long momentToSecondNumber(){
         int year=this.year-1;
         long toReturn=0;
         toReturn+=year/400*numberOfSecondsIn400Years;
@@ -102,7 +114,7 @@ public class Moment {
         toReturn+=year/4*numberOfSecondsIn4Years;
         year%=4;
         toReturn+=year*numberOfSecondsIn1Year;
-        toReturn+=((getNumberOfDaysInMonth(this.month)+this.day)*86400);
+        toReturn+=((getNumberOfDaysInMonth(this.month)+this.day-1)*86400);
         toReturn+=(this.hour*3600+this.minute*60+this.second);//automatic conversion to long
         return toReturn;
     }
@@ -113,8 +125,8 @@ public class Moment {
             this.first=first;
             this.second=second;
         }
-        
     }
+
     private Duplex secondToMonth(long secondCount,Moment moment){
         Duplex duplex=new Duplex(1,0);
         int i=0;
@@ -146,79 +158,98 @@ public class Moment {
         }
         return duplex;
     }
-    
-    public Moment secondToMoment(long secondCount){
-        Moment toReturn=new Moment(0,0,0,0,0,0);
+
+    private Moment secondToMoment(long secondCount){
+        Moment toReturn=new Moment();
+
         toReturn.year +=(int) 400*(secondCount/numberOfSecondsIn400Years);
         secondCount %= numberOfSecondsIn400Years;
-        toReturn.year +=(int) 100*(secondCount/numberOfSecondsIn100Years);
-        secondCount %=numberOfSecondsIn100Years;
+
+        //in cycles is ending on last day of 399 year, first division will give 0; but second lines will ad 400 years,
+        //therefore we need to let the programm get 399 years, and 400th year will be analised int secondToMonth function
+
+        long c100=secondCount/numberOfSecondsIn100Years;
+        if(c100 == 4) c100 = 3;
+        toReturn.year +=(int) c100*100;
+        secondCount -= c100 *  numberOfSecondsIn100Years;
+
+        //here there is no such a problem, because ending of 100 year cycle is not przestepny.
+        //therefore next operesions won't give extended results
+
         toReturn.year +=(int) 4*(secondCount/numberOfSecondsIn4Years);
         secondCount %= numberOfSecondsIn4Years;
-        toReturn.year += (int)secondCount/numberOfSecondsIn1Year;
-        secondCount %= numberOfSecondsIn1Year;
-        
-        if(secondCount == 0){
-            return new Moment(toReturn.getYear(),12,31,23,59,59);
-        }
-        
+
+        long c1=secondCount/numberOfSecondsIn1Year;
+        if(c1 == 4) c1 = 3;
+        toReturn.year += (int)c1;
+        secondCount -=c1 * numberOfSecondsIn1Year;
+
         toReturn.year += 1;
         Duplex duplex=secondToMonth(secondCount,toReturn);
         toReturn.month=duplex.first;
         secondCount=duplex.second;
-        
-        toReturn.day +=(int) secondCount/86400;
+
+        toReturn.day +=(1+(int) secondCount/86400);
         secondCount %=86400;
         toReturn.hour +=(int) secondCount/3600;
         secondCount %= 3600;
         toReturn.minute += (int)secondCount/60;
         secondCount %= 60;
-        toReturn.second=(int)secondCount
+        toReturn.second=(int)secondCount;
         return toReturn;
     }
-    /*private int _isLater(Moment a){
-        if(this.year>a.getYear()) return 2;
-        if(this.year<a.getYear()) return 0;
 
-        if(this.month>a.getMonth()) return 2;
-        if(this.month<a.getMonth()) return 0;
-
-        if(this.day>a.getDay()) return 2;
-        if(this.day<a.getDay()) return 0;
-
-        if(this.hour>a.getHour()) return 2;
-        if(this.hour<a.getHour()) return 0;
-
-        if(this.minute>a.getMinute()) return 2;
-        if(this.minute<a.getMinute()) return 0;
-
-        if(this.second>a.getSecond()) return 2;
-        if(this.second<a.getSecond()) return 0;
-
-        return 1;
+    public boolean isLater(Moment a){
+        long b=this.momentToSecondNumber();
+        long c=a.momentToSecondNumber();
+        if(b > c) return true;
+        return false;
     }
 
-    public void isLater (Moment a){
-        int b=_isLater(a);
-        if(b == 2 ) System.out.println("ten moment jest pozniejszy");
-        if(b == 0) System.out.println("ten moment jest wczesniejszy");
-        if(b == 1) System.out.println("oba momenty sa identyczne");
+    private void rescribe(Moment a){
+        this.year=a.getYear();
+        this.month=a.getMonth();
+        this.day=a.getDay();
+        this.hour=a.getHour();
+        this.minute=a.getMinute();
+        this.second=a.getSecond();
     }
 
-
-    private long _subtract(Moment a, Moment b){
-        long toReturn=0;
-        long += (long)((a.getYear()-b.getYear())*);
-
+    private void addManySeconds(long a){
+        long b=this.momentToSecondNumber();
+        b += a;
+        if(b < 0) System.out.println("bład");
+        Moment c=secondToMoment(b);
+        rescribe(c);
     }
 
-    public long  diffirence(Moment a){
-        if(this._isLater(a) == 1) return 0;
-        if(this._isLater(a) == 2) return _subtract(this,a);
-        if(this._isLater(a) == 0) return _subtract(a,this);
-    }*/
+    public void addYear(){
+        addManySeconds(numberOfSecondsIn1Year);
+    }
+
+    public void addDay(){
+        addManySeconds(86400);
+    }
+
+    public void addHour(){
+        addManySeconds(3600);
+    }
+
+    public void subtractYear(){
+        addManySeconds(-numberOfSecondsIn1Year);
+    }
+
+    public void subtractHour(){
+        addManySeconds(-3600);
+    }
+    public void subtractDay(){
+        addManySeconds(-86400);
+    }
+    public long diffirenceBetweenMoments(Moment b){
+        return this.momentToSecondNumber()-b.momentToSecondNumber();
+    }
+
     public static void main(String[] args) {
-
 
     }
 }
