@@ -1,0 +1,325 @@
+#include "rstack.h"
+#include "list.h"
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+
+#define checkEnterabilityFindValue \
+!rs->stackArray[stackIterator].element->visited == true &&\
+!rstack_empty(rs->stackArray[stackIterator].element)
+
+struct rstack{
+    Node* head;
+    bool isVisited;
+    bool isDestroyed;
+};
+
+Node* user=nullptr;
+
+
+void rstack_kill(rstack_t *rs){
+    kill(&rs->head);
+    free(rs);
+}
+
+rstack_t* rstack_new(){
+    rstack_t* toReturn=malloc(sizeof(rstack_t)); //is set errno=ENOMEM
+    
+    if(toReturn == nullptr){
+        return toReturn;
+    }
+    
+    (toReturn->head) = nullptr;
+    (toReturn->isVisited) = false;
+    (toReturn->isDestroyed) = false;
+    
+    if(push_stack(&user,toReturn) != 0) {
+        rstack_kill(toReturn);
+        toReturn = nullptr;
+    }
+
+    return toReturn;
+}
+
+void makeVisited(bool x,rstack_t *rs){
+    if(rs->isVisited == x) return;
+    rs->isVisited=x;
+
+    Node *now=rs->head;
+    Node *prev=nullptr;
+
+    while(now != nullptr){
+       if(now->type==stack){
+            makeVisited(x,now->data.stack); 
+        }
+        move(&prev,&now);
+    }
+    
+}
+
+void markAndSweep(){
+    Node *prev=nullptr;
+    Node *now=user;
+
+    while(now !=nullptr){
+        if(now->data.stack->isDestroyed==false){
+            makeVisited(true,now->data.stack);
+        }
+        move(&prev,&now);
+    }   
+
+    prev=nullptr;
+    now=user;
+
+    while(now !=nullptr){
+            if(now->data.stack->isVisited==false){
+                rstack_kill(now->data.stack);
+                if(prev==nullptr){
+                   pop(&prev,&now);
+                   user=now; 
+                }
+                else pop(&prev,&now);
+                
+            }
+            else{
+                move(&prev,&now);
+            }
+            
+        } 
+    
+    prev=nullptr;
+    now=user;
+
+    while(now !=nullptr){
+        makeVisited(false,now->data.stack);
+        
+        move(&prev,&now);
+    }  
+    
+}
+
+void rstack_delete(rstack_t *rs){
+    rs->isDestroyed=true;
+    markAndSweep();
+}  
+
+int rstack_push_value(rstack_t *rs, uint64_t value){
+    if(rs == nullptr){
+        errno=EINVAL;
+        return -1;
+    }
+
+    if(push_value(&rs->head,value) != 0){
+        return -1; //errno set in list
+    }
+
+    return 0;
+}
+
+int rstack_push_rstack(rstack_t *rs1, rstack_t* rs2){
+    if(rs1 == nullptr || rs2 == nullptr){
+        errno=EINVAL;
+        return -1;
+    }
+
+    if(push_stack(&rs1->head,rs2) != 0){
+        return -1; //errno set in list
+    }
+
+    return 0;
+}
+
+void rstack_pop(rstack_t *rs){
+    if(rs == nullptr || rs->head == nullptr){
+        return;
+    }
+
+    Node* temp = rs->head;
+    
+
+    if(temp->type == stack){
+        if(temp->data.stack->isDestroyed == true){
+            pop(nullptr,&rs->head);
+            //mark_and_sweep();
+        }
+    }
+    pop(nullptr,&rs->head);
+    markAndSweep();
+}
+
+
+uint64_t userfront(){
+    return user->data.stack->head->data.num;
+}
+
+
+bool rstack_empty(rstack_t *rs){
+    if(rs == nullptr || rs->head == nullptr) return true;
+    if(rs->isVisited == true) return true;
+
+    rs->isVisited=true;
+    bool toReturn=true;
+    Node* prev=nullptr;
+    Node* now=rs->head;
+
+    while(now != nullptr && toReturn == true){
+        if(now->type == num) toReturn=false;
+        else if(toReturn != false){
+            toReturn=rstack_empty(now->data.stack);
+            move(&prev,&now);
+        }
+    }
+
+    makeVisited(false,rs);
+
+    return toReturn;
+}
+
+result_t  rstack_front(rstack_t *rs){
+    result_t toReturn={.flag=false,.value=1};
+    if(rs == nullptr || rs->head == nullptr) return toReturn;
+    if(rs->isVisited == true) return toReturn;
+    rs->isVisited=true;
+
+    Node* prev=nullptr;
+    Node* now=rs->head;
+
+    while(now != nullptr && toReturn.flag == false){
+        if(now->type == num){
+            toReturn.flag=true;
+            toReturn.value=now->data.num;
+        }
+        else if(toReturn.flag == false){
+            toReturn=rstack_front(now->data.stack);
+            move(&prev,&now);
+        }
+    }
+
+    makeVisited(false,rs);
+
+    return toReturn;
+    
+}
+rstack_t* rstack_read(char const *path){
+    if(path==nullptr) return rstack_new();
+    return rstack_new();
+}
+
+int rstack_write(char const *path, rstack_t *rs){
+    if(rs == nullptr || path== nullptr) return -1;
+    return -1;
+}
+/*
+rstack_t* rstack_read(char const *path){
+    if(path == nullptr){
+        errno=EINVAL;
+        return nullptr;
+    }
+
+    rstack_t* toReturn=rstack_new();
+    if(toReturn == nullptr) return nullptr;
+        
+    FILE *file = fopen(path,"r");
+
+    if(file == nullptr){
+        // three lines above there is set to errno=enoent
+        rstack_kill(toReturn);
+        return nullptr;
+    } 
+
+    uint64_t getInLimit;
+    uintmax_t getStrtoumax;
+    char buffer[100];
+
+    while(fscanf(file, "%99s", buffer) == 1){
+        errno=0;
+        char *endptr;
+        getStrtoumax=strtoumax(buffer,&endptr,10);//this returns errno=erange
+        getInLimit=(uint64_t)getStrtoumax;
+
+        if(errno == ERANGE) goto finish;
+
+        if((uintmax_t)getInLimit != getStrtoumax) goto finish;
+
+        if(endptr == buffer) goto finish;
+
+        if(*endptr !='\0') goto finish;
+        
+        if(rstack_push_value(toReturn,getInLimit) != 0) goto finish;
+    }
+
+    fclose(file);
+    return toReturn;
+
+    finish:
+    fclose(file);
+    errno = EINVAL;
+    rstack_kill(toReturn); 
+    return nullptr;
+}
+
+int write_helper(FILE *file,rstack_t *rs){
+
+    long long numIterator=rs->numCount-1;
+    long long stackIterator=rs->stackCount-1;
+    long long allIterator=rs->allCount;
+    rs->visited=true;
+
+    while(allIterator != 0){
+        if(numIterator >=0 && allIterator == rs->intArray[numIterator].index){
+            if(fprintf(file,"%lu\n", rs->intArray[numIterator].element) < 0){
+                setVisitedFalse(rs);
+                return -1; 
+            }
+            //here is set errno
+            numIterator--;
+        }else{
+            if(stackIterator >=0 && allIterator == rs->stackArray[stackIterator].index){
+                if(rs->stackArray[stackIterator].element->visited == true){
+                    errno=EDEADLK;
+                    return -1;
+                }
+                else{
+                    if(write_helper(file,rs->stackArray[stackIterator].element) != 0){
+                        setVisitedFalse(rs);
+                        return -1;
+                    }
+                    rs->stackArray[stackIterator].element->visited=false;
+                    stackIterator--;
+                }
+            }
+            
+        }
+        allIterator--;
+        
+    }
+    return 0;
+}
+
+int rstack_write(char const *path, rstack_t *rs){
+    if(path == nullptr){
+        errno=EINVAL;
+        return -1;
+    }
+
+    if(rs == nullptr){
+        errno=EINVAL;
+        return -1;
+    }
+        
+    FILE *file = fopen(path,"w");
+
+    if(file == nullptr){
+        // three lines above there is set to errno=enoent
+        return -1;
+    } 
+
+    int toReturn=write_helper(file,rs);
+
+    rs->visited=false;
+    fclose(file);
+
+    return toReturn;
+}
+*/
