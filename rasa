@@ -4,18 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-
-#define checkEnterabilityFindValue \
-!rs->stackArray[stackIterator].element->visited == true &&\
-!rstack_empty(rs->stackArray[stackIterator].element)
+#include <ctype.h>
 
 struct rstack{
+    Node* tail;
     Node* head;
     bool isVisited;
     bool isDestroyed;
 };
 
-Node* user=nullptr;
+Node* user=nullptr;//TRZEBA TO KURDE SPRAWDZIĆ!!!
 
 
 void rstack_kill(rstack_t *rs){
@@ -24,9 +22,10 @@ void rstack_kill(rstack_t *rs){
 }
 
 rstack_t* rstack_new(){
-    rstack_t* toReturn=malloc(sizeof(rstack_t)); //is set errno=ENOMEM
+    rstack_t* toReturn=malloc(sizeof(rstack_t));
     
     if(toReturn == nullptr){
+        errno=ENOMEM;
         return toReturn;
     }
     
@@ -43,6 +42,7 @@ rstack_t* rstack_new(){
 }
 
 void makeVisited(bool x,rstack_t *rs){
+    if(rs == nullptr) return;
     if(rs->isVisited == x) return;
     rs->isVisited=x;
 
@@ -93,13 +93,13 @@ void markAndSweep(){
 
     while(now !=nullptr){
         makeVisited(false,now->data.stack);
-        
         move(&prev,&now);
     }  
     
 }
 
 void rstack_delete(rstack_t *rs){
+    if(rs == nullptr) return;
     rs->isDestroyed=true;
     markAndSweep();
 }  
@@ -110,8 +110,8 @@ int rstack_push_value(rstack_t *rs, uint64_t value){
         return -1;
     }
 
-    if(push_value(&rs->head,value) != 0){
-        return -1; //errno set in list
+    if(push_value(&rs->head,value) != 0){//errno in list
+        return -1; 
     }
 
     return 0;
@@ -139,13 +139,12 @@ void rstack_pop(rstack_t *rs){
     
 
     if(temp->type == stack){
-        if(temp->data.stack->isDestroyed == true){
             pop(nullptr,&rs->head);
-            //mark_and_sweep();
-        }
+            markAndSweep();
+            return;
     }
+
     pop(nullptr,&rs->head);
-    markAndSweep();
 }
 
 
@@ -153,8 +152,7 @@ uint64_t userfront(){
     return user->data.stack->head->data.num;
 }
 
-
-bool rstack_empty(rstack_t *rs){
+bool emptyHelper(rstack_t *rs){
     if(rs == nullptr || rs->head == nullptr) return true;
     if(rs->isVisited == true) return true;
 
@@ -165,52 +163,58 @@ bool rstack_empty(rstack_t *rs){
 
     while(now != nullptr && toReturn == true){
         if(now->type == num) toReturn=false;
-        else if(toReturn != false){
-            toReturn=rstack_empty(now->data.stack);
+        else{
+            toReturn=emptyHelper(now->data.stack);
             move(&prev,&now);
         }
     }
+    
+    return toReturn;
+}
+
+bool rstack_empty(rstack_t *rs){
+    
+    bool toReturn=emptyHelper(rs);
 
     makeVisited(false,rs);
 
     return toReturn;
 }
 
-result_t  rstack_front(rstack_t *rs){
+result_t frontHelper(rstack_t *rs){
     result_t toReturn={.flag=false,.value=1};
     if(rs == nullptr || rs->head == nullptr) return toReturn;
     if(rs->isVisited == true) return toReturn;
-    rs->isVisited=true;
 
+    rs->isVisited=true;
     Node* prev=nullptr;
     Node* now=rs->head;
-
+    
     while(now != nullptr && toReturn.flag == false){
         if(now->type == num){
             toReturn.flag=true;
             toReturn.value=now->data.num;
         }
-        else if(toReturn.flag == false){
-            toReturn=rstack_front(now->data.stack);
+        else{
+            toReturn=frontHelper(now->data.stack);
             move(&prev,&now);
         }
     }
 
+    return toReturn;
+}
+
+
+result_t  rstack_front(rstack_t *rs){
+    result_t toReturn=frontHelper(rs);
+
+
     makeVisited(false,rs);
 
     return toReturn;
-    
-}
-rstack_t* rstack_read(char const *path){
-    if(path==nullptr) return rstack_new();
-    return rstack_new();
 }
 
-int rstack_write(char const *path, rstack_t *rs){
-    if(rs == nullptr || path== nullptr) return -1;
-    return -1;
-}
-/*
+
 rstack_t* rstack_read(char const *path){
     if(path == nullptr){
         errno=EINVAL;
@@ -218,108 +222,117 @@ rstack_t* rstack_read(char const *path){
     }
 
     rstack_t* toReturn=rstack_new();
+
     if(toReturn == nullptr) return nullptr;
         
     FILE *file = fopen(path,"r");
 
     if(file == nullptr){
         // three lines above there is set to errno=enoent
+        pop(nullptr,&user);
         rstack_kill(toReturn);
         return nullptr;
     } 
 
-    uint64_t getInLimit;
-    uintmax_t getStrtoumax;
+    uint64_t getStrtoumax;
     char buffer[100];
 
     while(fscanf(file, "%99s", buffer) == 1){
         errno=0;
         char *endptr;
-        getStrtoumax=strtoumax(buffer,&endptr,10);//this returns errno=erange
-        getInLimit=(uint64_t)getStrtoumax;
 
-        if(errno == ERANGE) goto finish;
+        for(int i=0; buffer[i]!='\0';i++){
+            if(!isdigit(buffer[i])){
+                fclose(file);
+                errno=EINVAL;
+                pop(nullptr,&user);
+                rstack_kill(toReturn);
+                return nullptr;
+            }
+        }
 
-        if((uintmax_t)getInLimit != getStrtoumax) goto finish;
 
-        if(endptr == buffer) goto finish;
+        getStrtoumax=(uint64_t)strtoull(buffer,&endptr,10);
 
-        if(*endptr !='\0') goto finish;
-        
-        if(rstack_push_value(toReturn,getInLimit) != 0) goto finish;
+        if(errno == ERANGE || endptr == buffer ||*endptr !='\0'){
+            fclose(file);
+            errno=EINVAL;
+            pop(nullptr,&user);
+            rstack_kill(toReturn); 
+            return nullptr;
+        }
+
+        if(rstack_push_value(toReturn,getStrtoumax) != 0){
+            fclose(file);
+            errno=ENOMEM;
+            pop(nullptr,&user);
+            rstack_kill(toReturn); 
+            return nullptr;
+        }
+    }
+
+    if(!feof(file)){
+        fclose(file);
+        errno=EIO;
+        pop(nullptr,&user);
+        rstack_kill(toReturn);
+        return nullptr;
     }
 
     fclose(file);
-    return toReturn;
-
-    finish:
-    fclose(file);
-    errno = EINVAL;
-    rstack_kill(toReturn); 
-    return nullptr;
+    return toReturn;    
 }
 
-int write_helper(FILE *file,rstack_t *rs){
-
-    long long numIterator=rs->numCount-1;
-    long long stackIterator=rs->stackCount-1;
-    long long allIterator=rs->allCount;
-    rs->visited=true;
-
-    while(allIterator != 0){
-        if(numIterator >=0 && allIterator == rs->intArray[numIterator].index){
-            if(fprintf(file,"%lu\n", rs->intArray[numIterator].element) < 0){
-                setVisitedFalse(rs);
-                return -1; 
-            }
-            //here is set errno
-            numIterator--;
-        }else{
-            if(stackIterator >=0 && allIterator == rs->stackArray[stackIterator].index){
-                if(rs->stackArray[stackIterator].element->visited == true){
-                    errno=EDEADLK;
-                    return -1;
-                }
-                else{
-                    if(write_helper(file,rs->stackArray[stackIterator].element) != 0){
-                        setVisitedFalse(rs);
-                        return -1;
-                    }
-                    rs->stackArray[stackIterator].element->visited=false;
-                    stackIterator--;
-                }
-            }
-            
+int writeHelper(FILE *file,Node *el){
+    if(el==nullptr) return 0;
+    if(el->next != nullptr){
+        int x=writeHelper(file,el->next);
+        if (x < 0) return x;
+    } 
+    if(el->type == num){
+        if(fprintf(file,"%lu\n", el->data.num) < 0){
+            return -1;
         }
-        allIterator--;
-        
     }
+    else{
+        if(el->data.stack->isVisited == true){
+            return -2;
+        }
+    else{
+        el->data.stack->isVisited=true;
+        int x=writeHelper(file,el->data.stack->head);
+        if(x != 0){
+                return x;
+        }
+        el->data.stack->isVisited=false;
+    }
+    
+    }
+   
     return 0;
 }
 
+
+
 int rstack_write(char const *path, rstack_t *rs){
-    if(path == nullptr){
+    if(path == nullptr || rs == nullptr){
         errno=EINVAL;
         return -1;
     }
 
-    if(rs == nullptr){
-        errno=EINVAL;
-        return -1;
-    }
-        
     FILE *file = fopen(path,"w");
 
     if(file == nullptr){
         // three lines above there is set to errno=enoent
         return -1;
     } 
+    rs->isVisited=true;
+    int toReturn=writeHelper(file,rs->head);
+    makeVisited(false,rs);
 
-    int toReturn=write_helper(file,rs);
-
-    rs->visited=false;
     fclose(file);
 
+    if(toReturn == -2) toReturn=0;
     return toReturn;
 }
-*/
+
