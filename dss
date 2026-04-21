@@ -1,0 +1,37 @@
+package bajaderki;
+
+public class vector <T> {
+    private int freeIndex;
+    private int lastFreeIndex;
+    public Object[] elements;
+
+    public vector(){
+        this.freeIndex=0;
+        this.lastFreeIndex=9;
+        this.elements=new Object[10];
+    }
+
+    public void push(T elem){
+        if(freeIndex <= lastFreeIndex){
+            elements[freeIndex]=elem;
+            freeIndex++;
+        }
+        else{
+            Object[] newElems=new Object[2*(lastFreeIndex+1)];
+            
+            for(int i=0;i<=lastFreeIndex;i++){
+                newElems[i]=elements[i];
+            }
+            this.lastFreeIndex *= 2;
+            this.lastFreeIndex++;
+            elements=newElems;
+            elements[freeIndex]=elem;
+            freeIndex++;
+        }
+    }
+    
+    public void pop(){
+        if(freeIndex<0) return;
+        else freeIndex--;
+    }
+}
