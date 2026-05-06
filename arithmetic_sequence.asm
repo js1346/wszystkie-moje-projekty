@@ -85,13 +85,28 @@ add     rax,r9                             ;dodajemy overflow do rax
 adc     rdx,0                              ;dodajemy ewentualny overflow do rdx
 
 nie_przepisujemy_wyniku_na_ujemny:         ;mamy juz poprawny wynik k*(a1-a0); teraz wystarczy dodac a0 do funkcji
-push  rdx
-mov   rdx, r8
-mov   rsi, rdi
+push  rdx                                   
+mov   rdx, r8                              ;rdx i rax dwa dominujace bity w wyniku mnozenia
+mov   rsi, rdi                             ;rsi adres a0 r8 i r10 są bity wiodace pozyskane z 
+mov   r8,[rdx+rcx*8-8]
+test  r8,r8
+js    copy_ans
+
+mov   r8,0
+mov   r10,0
+jmp   fin_dod
+
+copy_ans:
+mov   r8,18446744073709551615
+mov   r10,18446744073709551615
+
+fin_dod:
 call  dodajemy
 add   rax,r9
-adc   rdx,0
 pop   rdx
+adc   rdx,0
+add   rax,r8
+adc   rdx,r10
 ret
 
 
