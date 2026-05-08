@@ -7,7 +7,7 @@ arithmetic_sequence:
 
 ;chcemy poznac wynik działania a0+(a1-a0)*k=a0+(a0-a1)*(-k)
 ;dla dalszej logiki chcemy wybrac wariant, 
-;w ktorym mniejsza liczba bedzie wieksza od zera
+;w ktorym drugi czynnik bedzie wiekszy od zera
 
 ;-------------------rejestry----------
     ;rdi-aktualny adres a0
@@ -23,7 +23,7 @@ mov    r11, rdi          ;zgodnie z logika wsadzamy akumulatory
 mov    r10, rcx
 mov    r9,  rdx
 test   r8,  r8           ;chcemy pozyskać pierwszy bit r8 za pomocą SF0
-jns    nie_neguj_r8      ;jezeli jest dodatni to mozemy pominac logikę ponizej
+jns    nie_neguj_r8      ;jesli pierwszy bit to 0 mozemy pominac logikę ponizej
 neg    r8                ;od teraz zawartosc r8 traktujemy jako unsigned int
 mov    rdi, rsi          ;zamienilismy ze soba liczby rdi i rsi
 mov    rsi, r11          ;dzieki czemu rsi-rdi to a0-a1 
@@ -36,12 +36,12 @@ petla_odejmowania:
 mov   rax, qword[rsi]         ;w rax pdejmujemy rsi-rdi
 sbb   rax, qword[rdi]
 mov  qword[rdx], rax          ;wsadzamy wynik pod adres rdx
-lea   rsi, qword[rsi+8]       ;przesuwamy adresy dalej
+lea   rsi, qword[rsi+8]       ;przesuwamy adresy o jedno slowo
 lea   rdx, qword[rdx+8] 
 lea   rdi, qword[rdi+8]
 loop petla_odejmowania
 
-mov   rsi,0
+mov   rsi,0             ;czyscimy rsi
 setl  sil               ;wstawia znak wyniku do rsi (SF!=OF)
 neg   rsi               ;negacja 00001 daje 11110+1=11111
                         ;negacja 00000 daje 11111+1=00000
@@ -57,7 +57,7 @@ neg   rsi               ;negacja 00001 daje 11110+1=11111
 ;r12-overflow z mnożenia
 ;rdi-aktualny adres w różnicy
 ;rsi-n+1sze słowo różnicy
-;r8-r11 ,rcxniezmienne
+;r8-r11 ,rcx niezmienne
 ;rax,rdx wyniki mnozenia
 mov   rcx, r10
 mov   rdi, r9
@@ -68,7 +68,7 @@ petla_mnozenia:
 mov    rax, qword[rdi]        
 mul    r8                    ;mnozymy fragment różnicy przez k
 add    rax, r12               ;dodajemy overflow
-adc    rdx, 0                 ;dodajemy oferflow z poprzed. dod. (zmiesci sie)
+adc    rdx, 0                 ;przekazujemy overflow dalej
 mov    r12, rdx              ;wsadzamy overflow do r12
 mov    qword[rdi], rax       ;wynik mozemy wsadzic spowrotem;
                             ;na tej czesci juz nie robimy operacji w tej sekcji
@@ -85,7 +85,7 @@ sub    rdx, r8              ;jezeli ujemna, to odejmujemy k od pierwszego bitu
 koncowka_mnozenia:
 pop    r12                  ;juz go nie bedziemy potrzebowac w logice
 
-;pozyskujemy znak a0 i przepisujemy go na dwa bity przednie
+;pozyskujemy znak a0 i przepisujemy go na dwa slowa przednie
 ;dodajemy a0,ze wzgledu na rozmiar a0 
 ;i rozmiar iloczynu nie przekroczy on zawartosci n+2 słow
 ;mozemy porzucic adresy mnozenia itd. poniewaz juz ich nie bedziemy potrzebowac
@@ -95,15 +95,14 @@ pop    r12                  ;juz go nie bedziemy potrzebowac w logice
 ;rdi-aktualny adres w różnicy
 ;rsi-adres roboczy
 ;rcx-counter
-;r8, r9-rejestry pierwszych bitów a0
+;r8,rejestr dw och pierwszych pierwszych bitów a0
 mov    rcx, r10                ;przerzucamy do zgodnosci z logiką
 mov    rdi, r9
 mov    rsi, qword[r11+rcx*8-8] ;pozyskujemy MS bajt z a0
 mov    r8,0
 test   rsi, rsi                ;pozyskujemy MSB z a0
 sets   r8b                     ;wsadzamy do dolnej ósemki r8
-neg    r8                  ;analogicznie do 1szej petli
-mov    r9,  r8
+neg    r8                      ;analogicznie do 1szej petli
 clc                         ;czyscimy carry flaga,by moc dodac z przeniesieniem
 
 petla_dodawania:
@@ -114,6 +113,7 @@ lea    r11, [r11+8]
 loop petla_dodawania
 
 adc    rax,r8              ;dodajemy pozostałe dwa rejestry
-adc    rdx,r9
+adc    rdx,r8
 
 ret
+
